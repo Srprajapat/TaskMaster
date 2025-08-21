@@ -1,0 +1,212 @@
+/* ==========================
+   Global Variables (Theme)
+========================== */
+:root {
+    --bg-color: #f5f7fa;
+    --text-color: #212121;
+    --card-bg: rgba(255, 255, 255, 0.75);
+    --button-bg: #0077cc;
+    --button-hover: #005fa3;
+    --link-color: #0077cc;
+    --link-hover: #003f7f;
+    --glass-blur: blur(8px);
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    --form-button-bg: #0077cc;
+    --form-button-hover: #005fa3;
+    --completed-bg: #e6ffe6;
+    --completed-border: #28a745;
+}
+
+body.dark-mode {
+    --bg-color: #121212;
+    --text-color: #eeeeee;
+    --card-bg: rgba(30, 30, 30, 0.85);
+    --button-bg: #4444aa;
+    --button-hover: #6666cc;
+    --link-color: #66b3ff;
+    --link-hover: #99ccff;
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    --completed-bg: #213d21;
+    --completed-border: #28a745;
+}
+
+/* ==========================
+   Base Styles
+========================== */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.4s, color 0.4s;
+}
+
+/* ==========================
+   Containers
+========================== */
+.container, .task-card {
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    background-color: var(--card-bg);
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 800px;
+    transition: all 0.3s ease;
+}
+
+/* Slight zoom on card hover */
+.task-card:hover {
+    transform: scale(1.01);
+}
+
+/* ==========================
+   Typography
+========================== */
+h1, h2, h3 {
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+a {
+    color: var(--link-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+a:hover {
+    color: var(--link-hover);
+}
+
+/* ==========================
+   Buttons
+========================== */
+
+button, input[type="submit"] {
+    background-color: var(--button-bg);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover, input[type="submit"]:hover {
+    background-color: var(--button-hover);
+    transform: translateY(-2px);
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.delete-btn:hover {
+    background-color: #a71d2a;
+}
+
+
+/* ==========================
+   Forms
+========================== */
+form input, form textarea, form select {
+    width: 100%;
+    padding: 12px; /* Add padding inside the input field */
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin-top: 12px;
+    margin-bottom: 20px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    box-sizing: border-box; /* Ensures padding doesn't cause overflow */
+}
+
+.container {
+    padding: 20px; /* Ensure padding around the card content */
+}
+
+/* ==========================
+   Completed Task Styling
+========================== */
+.task-card.completed {
+    background-color: var(--completed-bg);
+    border: 2px solid var(--completed-border);
+    box-shadow: 0 0 12px rgba(40, 167, 69, 0.3);
+}
+
+/* ==========================
+   Homepage Image
+========================== */
+.homepage-container {
+    text-align: center;
+    padding: 30px 15px;
+}
+
+.homepage-container img {
+    width: 60%;
+    max-width: 300px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    margin-top: 15px;
+}
+
+/* ==========================
+   Navigation
+========================== */
+nav {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Space between links */
+    padding: 10px 0;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+nav a {
+    text-decoration: none;
+    font-weight: 600;
+    color: var(--link-color);
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+nav a:hover {
+    background-color: var(--button-bg);
+    color: var(--text-color);
+}
+
+.task-actions {
+    text-align: right;
+    margin-top: 10px;
+}
+
+#toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.toast {
+    background-color: #28a745;
+    color: white;
+    padding: 12px 20px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    animation: fadeOut 3s ease forwards;
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+
+

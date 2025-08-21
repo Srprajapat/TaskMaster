@@ -1,0 +1,314 @@
+# TaskMaster Full Django Project
+
+## Folder Structure:
+
+```
+taskmaster/
+├── manage.py
+├── taskmaster/
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── tasks/
+│   ├── admin.py
+│   ├── apps.py
+│   ├── forms.py
+│   ├── migrations/
+│   │   └── __init__.py
+│   ├── models.py
+│   ├── templates/
+│   │   ├── base.html
+│   │   ├── homepage.html
+│   │   ├── tasks/
+│   │   │   ├── task_list.html
+│   │   │   ├── task_detail.html
+│   │   │   └── task_form.html
+│   ├── static/
+│   │   └── tasks/
+│   │       └── style.css
+│   ├── tests.py
+│   ├── urls.py
+│   └── views.py
+└── db.sqlite3
+```
+
+---
+
+## 1. settings.py (Important Changes)
+- Add `'tasks'` to `INSTALLED_APPS`
+- Configure static files:
+
+```python
+INSTALLED_APPS = [
+    ...
+    'tasks',
+    'django.contrib.staticfiles',
+]
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [ BASE_DIR / 'tasks/static' ]
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+```
+
+---
+
+## 2. taskmaster/urls.py
+
+```python
+from django.contrib import admin
+from django.urls import path, include
+from tasks.views import homepage
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', homepage, name='home'),
+    path('tasks/', include('tasks.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
+]
+```
+
+---
+
+## 3. tasks/models.py
+
+```python
+from django.db import models
+from django.contrib.auth.models import User
+
+class Category(models.Model):
+    name = models.CharField(max_length=50)
+    def __str__(self):
+        return self.name
+
+class Task(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('In Progress', 'In Progress'),
+        ('Completed', 'Completed'),
+    ]
+    PRIORITY_CHOICES = [
+        ('Low', 'Low'),
+        ('Medium', 'Medium'),
+        ('High', 'High'),
+    ]
+
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    deadline = models.DateField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='Medium')
+    assigned_to = models.ForeignKey(User, on_delete=models.CASCADE)
+    categories = models.ManyToManyField(Category, blank=True)
+    attachment = models.FileField(upload_to='attachments/', blank=True, null=True)
+
+    def __str__(self):
+        return self.title
+```
+
+---
+
+## 4. tasks/forms.py
+
+```python
+from django import forms
+from .models import Task
+from django.utils import timezone
+
+class TaskForm(forms.ModelForm):
+    class Meta:
+        model = Task
+        fields = '__all__'
+
+    def clean_deadline(self):
+        deadline = self.cleaned_data.get('deadline')
+        if deadline < timezone.now().date():
+            raise forms.ValidationError("Deadline cannot be in the past.")
+        return deadline
+```
+
+---
+
+## 5. tasks/views.py
+
+```python
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Task
+from .forms import TaskForm
+from django.contrib.auth.decorators import login_required
+
+
+def homepage(request):
+    return render(request, 'homepage.html')
+
+@login_required
+def task_list(request):
+    tasks = Task.objects.all() if request.user.is_superuser else Task.objects.filter(assigned_to=request.user)
+    return render(request, 'tasks/task_list.html', {'tasks': tasks})
+
+@login_required
+def task_detail(request, task_id):
+    task = get_object_or_404(Task, id=task_id)
+    return render(request, 'tasks/task_detail.html', {'task': task})
+
+@login_required
+def task_create(request):
+    if request.method == 'POST':
+        form = TaskForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('task_list')
+    else:
+        form = TaskForm()
+    return render(request, 'tasks/task_form.html', {'form': form})
+```
+
+---
+
+## 6. tasks/urls.py
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.task_list, name='task_list'),
+    path('<int:task_id>/', views.task_detail, name='task_detail'),
+    path('create/', views.task_create, name='task_create'),
+]
+```
+
+---
+
+## 7. Admin Setup (admin.py)
+
+```python
+from django.contrib import admin
+from .models import Task, Category
+
+admin.site.register(Task)
+admin.site.register(Category)
+```
+
+---
+
+## 8. Templates
+
+### base.html
+```html
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TaskMaster</title>
+    <link rel="stylesheet" href="{% static 'tasks/style.css' %}">
+</head>
+<body>
+    <h1><a href="/">TaskMaster</a></h1>
+    {% if user.is_authenticated %}
+        <p>Welcome, {{ user.username }} | <a href="/accounts/logout/">Logout</a></p>
+    {% else %}
+        <a href="/accounts/login/">Login</a>
+    {% endif %}
+    <hr>
+    {% block content %}{% endblock %}
+</body>
+</html>
+```
+
+### homepage.html
+```html
+{% extends 'base.html' %}
+{% block content %}
+<h2>Welcome to TaskMaster</h2>
+<p>A simple task management system.</p>
+{% endblock %}
+```
+
+### task_list.html
+```html
+{% extends 'base.html' %}
+{% block content %}
+<h2>Task List</h2>
+<a href="/tasks/create/">Create New Task</a>
+<ul>
+{% for task in tasks %}
+    <li><a href="/tasks/{{ task.id }}/">{{ task.title }}</a> - {{ task.status }}</li>
+{% endfor %}
+</ul>
+{% endblock %}
+```
+
+### task_detail.html
+```html
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ task.title }}</h2>
+<p>{{ task.description }}</p>
+<p>Deadline: {{ task.deadline }}</p>
+<p>Status: {{ task.status }}</p>
+<p>Priority: {{ task.priority }}</p>
+<p>Assigned To: {{ task.assigned_to }}</p>
+{% if task.attachment %}
+<p>Attachment: <a href="{{ task.attachment.url }}">Download</a></p>
+{% endif %}
+{% endblock %}
+```
+
+### task_form.html
+```html
+{% extends 'base.html' %}
+{% block content %}
+<h2>Create Task</h2>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save</button>
+</form>
+{% endblock %}
+```
+
+---
+
+## 9. Static File (style.css)
+
+```css
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f4f4f4;
+}
+h1 a {
+    text-decoration: none;
+    color: black;
+}
+```
+
+---
+
+## ✅ Final Setup Steps:
+
+1. Run migrations:
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+2. Create a superuser:
+```bash
+python manage.py createsuperuser
+```
+
+3. Start the server:
+```bash
+python manage.py runserver
+```
+
+Now access:
+- Homepage: http://127.0.0.1:8000/
+- Task list: http://127.0.0.1:8000/tasks/
+- Admin: http://127.0.0.1:8000/admin/
+
+Let me know if you want registration functionality added next!

@@ -1,0 +1,48 @@
+- Set up the Django project
+Start a project named 'TaskMaster', Create an app called 'tasks', Register the app, Create a simple homepage
+
+- Build the core views and URL routing for task management
+Extend on the tasks app.
+Define function-based views: task_list, task_detail.
+Configure URLs: /tasks/, /tasks/<int:task_id>/.
+
+The above was what we did so far. Now we have to do the rest as follows:
+
+- Design templates and integrate static files.
+Create a base template (base.html) with Bootstrap/tailwind for consistent styling.
+Build task_list.html and task_detail.html templates using Django syntax.
+Add static CSS/JS files for styling and interactivity.
+
+- Model the database structure.
+Define Task and UserProfile models:
+Fields: title, description, deadline, status, priority, assigned_to (ForeignKey to User).
+Relationships: Many-to-many for task categories.
+Run migrations and register models in the admin interface.
+
+- Create forms for task management.
+Build a TaskForm using ModelForm to create/edit tasks.
+Add validation: Ensure deadlines are future dates.
+Implement file uploads for task attachments.
+
+- Add user authentication and permissions.
+Enable Django’s built-in authentication system for registration/login.
+Restrict task editing/deletion to assigned users or admins using decorators (e.g., @login_required).
+Create an admin dashboard to manage all tasks.
+
+Ok, so the above are the things we need to achieve in the project. 
+So, in summary, the project is:
+A comprehensive web application where users can create, assign, track tasks, and collaborate. Features include:
+
+- User AuthenticationRegistration, login, password reset, and role-based access (admin/user).	Registration, login, password reset, and role-based access (admin/user).
+
+- Task ManagementCreate, read, update, delete tasks with deadlines, priorities, and statuses.	Create, read, update, delete tasks with deadlines, priorities, and statuses.
+
+- File UploadsAttach documents to tasks.	Attach documents to tasks.
+
+- Dynamic UITemplates with inheritance, Bootstrap styling, and interactive forms.	Templates with inheritance, Bootstrap styling, and interactive forms.
+
+- Data RelationshipsAssign tasks to users (many-to-one), categorize tasks (many-to-many).	Assign tasks to users (many-to-one), categorize tasks (many-to-many).
+
+- Data RelationshipsAssign tasks to users (many-to-one), categorize tasks (many-to-many).	Assign tasks to users (many-to-one), categorize tasks (many-to-many).
+
+- PermissionsAdmins can assign tasks; users can only edit their own tasks.	Admins can assign tasks; users can only edit their own tasks.
